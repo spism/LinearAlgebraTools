@@ -157,7 +157,7 @@ public class tool
             colZeroCounts[i] = colZeroCount;
         }
 
-        int smallestZeroCount = Integer.MAX_VALUE;
+        int smallestZeroCount = matrix.length;
         int row = -1;
         int col = -1;
         for(int i = 0; i < matrix.length; i++)
@@ -182,7 +182,7 @@ public class tool
             {
                 double[][] newMatrix = removeRow(matrix,i);
                 newMatrix = removeCol(newMatrix,col);
-                determinant += Math.pow(-1,i + col) * matrix[i][col] * determinant(newMatrix);
+                determinant += Math.pow(-1,i + 2 + col) * matrix[i][col] * determinant(newMatrix);
             }
         }
         else if(row > -1)
@@ -191,7 +191,16 @@ public class tool
             {
                 double[][] newMatrix = removeCol(matrix,i);
                 newMatrix = removeRow(newMatrix,row);
-                determinant += Math.pow(-1,row + i) * matrix[row][i] * determinant(newMatrix);
+                determinant += Math.pow(-1,row + i + 2) * matrix[row][i] * determinant(newMatrix);
+            }
+        }
+        else
+        {
+            for(int i = 0; i < matrix.length; i++)
+            {
+                double[][] newMatrix = removeRow(matrix,i);
+                newMatrix = removeCol(newMatrix,0);
+                determinant += Math.pow(-1,i + 2) * matrix[i][0] * determinant(newMatrix);
             }
         }
 
