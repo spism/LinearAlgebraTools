@@ -126,18 +126,21 @@ public class tool
         }
     }
 
+    public double determinant2by2(double[][] matrix)
+    {
+        if(matrix.length > 2 || matrix[0].length > 2)
+        {
+            System.out.println("Matrix is not 2x2!");
+            return 0;
+        }
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+
     public double determinant(double[][] matrix)
     {
+        if(matrix.length == 2 && matrix[0].length == 2) return determinant2by2(matrix);
 
-    }
-
-    public double[] eigenvector(double[][] matrix, double eigenvalue)
-    {
-
-    }
-
-    public double[] findEigenvalues(double[][] matrix) // matrix must be square as eigenvalues are only defined for square matrices
-    {
+        double determinant = 0;
         int[] rowZeroCounts = new int[matrix.length];
         int[] colZeroCounts = new int[matrix.length];
 
@@ -155,14 +158,99 @@ public class tool
         }
 
         int smallestZeroCount = Integer.MAX_VALUE;
-        int row;
-        int col;
+        int row = -1;
+        int col = -1;
         for(int i = 0; i < matrix.length; i++)
         {
-            if(rowZeroCounts[i] < colZeroCounts[i] && rowZeroCounts[i] < smallestZeroCount)
+            if(rowZeroCounts[i] < smallestZeroCount)
             {
                 smallestZeroCount = rowZeroCounts[i];
+                row = i;
+                col = -1;
+            }
+            if(colZeroCounts[i] < smallestZeroCount)
+            {
+                smallestZeroCount = colZeroCounts[i];
+                row = -1;
+                col = i;
             }
         }
+
+        if(col > -1)
+        {
+            for(int i = 0; i < matrix.length; i++)
+            {
+                double[][] newMatrix = removeRow(matrix,i);
+                newMatrix = removeCol(newMatrix,col);
+                determinant += Math.pow(-1,i + col) * matrix[i][col] * determinant(newMatrix);
+            }
+        }
+        else if(row > -1)
+        {
+            for(int i = 0; i < matrix[0].length; i++)
+            {
+                double[][] newMatrix = removeCol(matrix,i);
+                newMatrix = removeRow(newMatrix,row);
+                determinant += Math.pow(-1,row + i) * matrix[row][i] * determinant(newMatrix);
+            }
+        }
+
+        return determinant;
+    }
+
+    public double[][] removeRow(double[][] matrix, int row)
+    {
+        double[][] newMatrix = new double[matrix.length - 1][matrix[0].length];
+        for(int i = 0; i < matrix.length; i++)
+        {
+            if(i < row)
+            {
+                for(int j = 0; j < matrix[0].length; j++)
+                {
+                    newMatrix[i][j] = matrix[i][j];
+                }
+            }
+            if(i > row)
+            {
+                for(int j = 0; j < matrix[0].length; j++)
+                {
+                    newMatrix[i - 1][j] = matrix[i][j];
+                }
+            }
+        }
+        return newMatrix;
+    }
+
+    public double[][] removeCol(double[][] matrix, int col)
+    {
+        double[][] newMatrix = new double[matrix.length][matrix[0].length - 1];
+        for(int i = 0; i < matrix[0].length; i++)
+        {
+            if(i < col)
+            {
+                for(int j = 0; j < matrix.length; j++)
+                {
+                    newMatrix[j][i] = matrix[i][j];
+                }
+            }
+            if(i > col)
+            {
+                for(int j = 0; j < matrix.length; j++)
+                {
+                    newMatrix[j][i - 1] = matrix[i][j];
+                }
+            }
+        }
+        return newMatrix;
+    }
+
+    public double[] eigenvector(double[][] matrix, double eigenvalue)
+    {
+
+    }
+
+    public double[] findEigenvalues(double[][] matrix) // matrix must be square as eigenvalues are only defined for square matrices
+    {
+
     }
 }
