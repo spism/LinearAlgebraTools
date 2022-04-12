@@ -87,34 +87,94 @@ public class tool
 
     /**
      * This method exists to find a solution matrix, which is calculated by creating an augmented matrix using the vector.  This is useful for finding possible
-     * vectors that the vector will map to.
-     * @param matrix is the input matrix
-     * @param vector is the vector mapping in terms of the matrix
-     * @return the matrix after row reduction to reduced echelon form
+     * vectors that map to the vector in the different coordinate system.  It calculates the reduced echelon form of the matrix.
+     * @param augmentedMatrix is the input matrix with the solution vector included
      */
-    public double[][] findSolutionMatrix(double[][] matrix, double[] vector)
+    public void findSolutionMatrix(double[][] augmentedMatrix)
     {
-        for(int i = 0; i < matrix[0].length; i++)
+        int pivotCounter = 0;
+        final double epsilon = 0.0000000001;
+        for(int i = 0; i < augmentedMatrix[0].length; i++)
         {
-            for(int j = 0; j < matrix.length; j++)
+            if(augmentedMatrix[0][i] == 0) // check for 0 in row 0, necessary because then the calculations are not possible and a solution can not be found
             {
-
+                int nonZeroRow = -1;
+                for(int j = 0; j < augmentedMatrix.length; j++)
+                {
+                    if(augmentedMatrix[j][i] != 0) nonZeroRow = j;
+                }
+                if(nonZeroRow > -1) interchangeRows(augmentedMatrix,pivotCounter,nonZeroRow);
+                else continue; // no row that has nonzero value means this column does not need to be calculated, so increment column
+            }
+            for(int j = 0; j < augmentedMatrix.length; j++)
+            {
+                addRowMultiple(augmentedMatrix, -1 * (augmentedMatrix[j][i] / augmentedMatrix[0][i]),j,pivotCounter);
+            }
+            pivotCounter++;
+        }
+        for(int i = 0; i < augmentedMatrix.length; i++) // changes all pivots to 1
+        {
+            for(int j = 0; j < augmentedMatrix[0].length; j++)
+            {
+                if(augmentedMatrix[i][j] != 0)
+                {
+                    divideRow(augmentedMatrix,augmentedMatrix[i][j],i);
+                    break;
+                }
+            }
+        }
+        pivotCounter = 0;
+        for(int i = 0; i < augmentedMatrix[0].length; i++) // swaps rows so that first pivot is in first row, second in second, etc.
+        {
+            for(int j = 0; j < augmentedMatrix.length; j++)
+            {
+                if(augmentedMatrix[j][i] != 0)
+                {
+                    interchangeRows(augmentedMatrix,pivotCounter,j);
+                    pivotCounter++;
+                    break;
+                }
+            }
+        }
+        for(int i = 0; i < augmentedMatrix.length; i++) // calculates reduced echelon form of matrix
+        {
+            for(int j = 0; j < augmentedMatrix[0].length; j++)
+            {
+                if(augmentedMatrix[i][j] != 0)
+                {
+                    for(int k = i - 1; k >= 0; k--)
+                    {
+                        if(augmentedMatrix[k][j] != 0)
+                        {
+                            addRowMultiple(augmentedMatrix,-augmentedMatrix[k][j],k,i);
+                        }
+                    }
+                    break;
+                }
             }
         }
     }
 
-    private void interchange(double[][] matrix, int row1, int row2)
+    private void interchangeRows(double[][] matrix, int row1, int row2)
     {
         double[] tempRow = matrix[row2];
         matrix[row2] = matrix[row1];
         matrix[row1] = tempRow;
     }
 
-    private void multiply(double[][] matrix, double scalar, int row)
+    private void multiplyRow(double[][] matrix, double scalar, int row)
     {
         for(int i = 0; i < matrix[0].length; i++)
         {
             matrix[row][i] = matrix[row][i] * scalar;
+        }
+    }
+
+    private void divideRow(double[][] matrix, double scalar, int row)
+    {
+        for(int i = 0; i < matrix[0].length; i++)
+        {
+            matrix[row][i] = matrix[row][i] / scalar;
         }
     }
 
